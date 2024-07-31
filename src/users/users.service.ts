@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.input';
 
 // This should be a real class/interface representing a user entity
@@ -10,12 +11,12 @@ export class UsersService {
     {
       userId: 0,
       username: 'john',
-      password: 'changeme',
+      password: '$2b$10$esn051dkT/4vVZx41/TL0OkFjUHr1ilhGvs5ipfruGzrvzRWV6a3y',
     },
     {
       userId: 1,
       username: 'maria',
-      password: 'guess',
+      password: '$2b$10$YAnplGAB080RGj96MzwVreR7l0OQtk/VkiaJwjnlspkJ7SRgKFH0O',
     },
   ];
 
@@ -25,12 +26,14 @@ export class UsersService {
 
   async createUser({ username, password }: CreateUserDto) {
     const userId = this.users.length;
+    const encrypterPassword = await bcrypt.hash(password, 10);
     this.users.push({
       userId: userId,
-      password,
+      password: encrypterPassword,
       username,
     });
 
-    return this.users.filter((user) => user.userId === userId).at(0);
+    const user = this.users.filter((user) => user.userId === userId).at(0);
+    return user;
   }
 }
